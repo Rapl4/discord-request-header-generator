@@ -3,29 +3,49 @@ import random
 import time
 import base64
 import json
+import beautifulsoup4
 import re
+
 
 def get_latest_chrome_version():
     try:
-        response = requests.get("https://www.whatismybrowser.com/guides/the-latest-version/chrome")
+        response = requests.get("https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows")
         response.raise_for_status()
-        match = re.search(r"Chrome/(\d+\.\d+\.\d+\.\d+)", response.text)
+        data = response.json()
+        if data and len(data) > 0:
+            return data[0]['version']
+    except:
+        pass
+    try:
+        response = requests.get("https://chromereleases.googleblog.com/")
+        response.raise_for_status()
+        match = re.search(r'(\d+\.\d+\.\d+\.\d+)', response.text)
         if match:
             return match.group(1)
-    except requests.exceptions.RequestException:
+    except:
         pass
-    return "123.0.0.0"
+    return "131.0.6778.85"
 
 def get_latest_discord_build_number():
     try:
-        response = requests.get("https://discord.com/app")
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get("https://discord.com/login", headers=headers)
         response.raise_for_status()
-        match = re.search(r'build_number:\"(\d+)\"', response.text)
+        match = re.search(r'build_number["\']?\s*:\s*["\']?(\d+)["\']?', response.text)
         if match:
             return match.group(1)
-    except requests.exceptions.RequestException:
+    except:
         pass
-    return "288923"
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get("https://discord.com/app", headers=headers)
+        response.raise_for_status()
+        match = re.search(r'build_number["\']?\s*:\s*["\']?(\d+)["\']?', response.text)
+        if match:
+            return match.group(1)
+    except:
+        pass
+    return "295513"
 
 def generate_discord_headers(token="token"):
     chrome_version = get_latest_chrome_version()
