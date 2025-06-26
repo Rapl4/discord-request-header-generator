@@ -3,7 +3,7 @@ import random
 import time
 import base64
 import json
-import beautifulsoup4
+from bs4 import BeautifulSoup
 import re
 
 
